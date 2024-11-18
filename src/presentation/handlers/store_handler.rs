@@ -37,7 +37,7 @@ pub async fn get_store_by_id_handler(
     State(repo): State<Arc<DiskStoreRepo>>,
     Path(id): Path<String>,
 ) -> Response {
-    if let Some(store) = GetStoreByIdUseCase::new(repo).execute(id) {
+    if let Some(store) = GetStoreByIdUseCase::new(repo).execute(&id) {
         Json(NewStore {
             id: store.id,
             name: store.name,

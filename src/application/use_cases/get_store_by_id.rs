@@ -14,7 +14,7 @@ impl<T: StoreRepo> GetStoreByIdUseCase<T> {
         }
     }
 
-    pub fn execute(&self, id: String) -> Option<Store> {
+    pub fn execute(&self, id: &str) -> Option<Store> {
         self.service.get_by_id(id)
     }
 }

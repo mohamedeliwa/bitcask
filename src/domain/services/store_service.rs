@@ -16,7 +16,7 @@ impl<T: StoreRepo> StoreService<T> {
         self.repo.create(store)
     }
 
-    pub fn get_by_id(&self, id: String) -> Option<Store> {
+    pub fn get_by_id(&self, id: &str) -> Option<Store> {
         self.repo.get_by_id(id)
     }
 }

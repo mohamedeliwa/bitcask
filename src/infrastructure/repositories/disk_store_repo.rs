@@ -36,7 +36,14 @@ impl StoreRepo for Arc<DiskStoreRepo> {
         }
     }
 
-    fn get_by_id(&self, _id: String) -> Option<Store> {
-        None
+    fn get_by_id(&self, id: &str) -> Option<Store> {
+        let path = format!("{}/{}", self.path, id);
+        match fs::File::open(&path) {
+            Ok(_) => Some(Store {
+                name: id.into(),
+                id: id.into(),
+            }),
+            Err(e) => None,
+        }
     }
 }
