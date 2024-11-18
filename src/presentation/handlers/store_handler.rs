@@ -26,10 +26,9 @@ pub async fn create_store_handler(
     State(repo): State<Arc<DiskStoreRepo>>,
     Json(input): Json<NewStore>,
 ) -> Response {
-    if let Ok(_) = CreateStoreUseCase::new(repo).execute(&input) {
-        Json(input).into_response()
-    } else {
-        StatusCode::BAD_REQUEST.into_response()
+    match CreateStoreUseCase::new(repo).execute(&input) {
+        Ok(_) => Json(input).into_response(),
+        Err(e) => (StatusCode::BAD_REQUEST, e).into_response(),
     }
 }
 

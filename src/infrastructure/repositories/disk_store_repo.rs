@@ -28,8 +28,12 @@ impl DiskStoreRepo {
 }
 
 impl StoreRepo for Arc<DiskStoreRepo> {
-    fn create(&self, _store: &NewStore) -> Result<(), String> {
-        Ok(())
+    fn create(&self, store: &NewStore) -> Result<(), String> {
+        let path = format!("{}/{}", self.path, store.name);
+        match fs::File::create_new(&path) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
     }
 
     fn get_by_id(&self, _id: String) -> Option<Store> {
