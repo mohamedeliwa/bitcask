@@ -1,7 +1,7 @@
-use crate::infrastructure::repositories::postgres_store_repo::PostgresStoreRepo;
+use crate::infrastructure::repositories::disk_store_repo::DiskStoreRepo;
 
 pub fn run() -> Result<(), String> {
-    let _repo = PostgresStoreRepo::new();
+    let _repo = DiskStoreRepo::new();
 
     println!("Starting...!");
 
