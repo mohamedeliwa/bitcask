@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
     domain::{entities::store::Store, repositories::store_repo::StoreRepo},
     presentation::handlers::store_handler::NewStore,
@@ -17,9 +19,7 @@ impl DiskStoreRepo {
     }
 }
 
-/// we can implement it for Arc<> in case we want it to be shared
-/// impl StoreRepo for Arc<DiskStoreRepo>
-impl StoreRepo for DiskStoreRepo {
+impl StoreRepo for Arc<DiskStoreRepo> {
     fn create(&self, _store: &NewStore) -> Result<(), String> {
         Ok(())
     }

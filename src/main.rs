@@ -5,8 +5,8 @@ pub mod domain;
 pub mod infrastructure;
 pub mod presentation;
 
-fn main() {
-    println!("Hello, world!");
+#[tokio::main]
+async fn main() {
     // starting the web server
-    web::run().unwrap();
+    web::run().await.unwrap();
 }
