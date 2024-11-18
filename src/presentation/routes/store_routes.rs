@@ -19,7 +19,7 @@ pub fn routes() -> Router {
     let repo = Arc::new(DiskStoreRepo::new(path));
 
     Router::new()
-        .route("/store/:id", get(get_store_by_id_handler))
         .route("/store", post(create_store_handler))
+        .route("/store/:id", get(get_store_by_id_handler))
         .with_state(repo)
 }

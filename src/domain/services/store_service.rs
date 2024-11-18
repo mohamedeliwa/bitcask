@@ -12,9 +12,8 @@ impl<T: StoreRepo> StoreService<T> {
         StoreService { repo }
     }
 
-    pub fn create_store(&self, store: NewStore) -> Result<(), String> {
-        self.repo.create(&store)?;
-        Ok(())
+    pub fn create_store(&self, store: &NewStore) -> Result<(), String> {
+        self.repo.create(store)
     }
 
     pub fn get_by_id(&self, id: String) -> Option<Store> {

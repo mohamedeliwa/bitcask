@@ -3,6 +3,7 @@ use std::sync::Arc;
 use axum::{
     extract::{Path, State},
     http::StatusCode,
+    response::{IntoResponse, Response},
     Json,
 };
 use serde::{Deserialize, Serialize};
@@ -20,24 +21,30 @@ pub struct NewStore {
     pub name: String,
 }
 
+#[axum::debug_handler]
 pub async fn create_store_handler(
     State(repo): State<Arc<DiskStoreRepo>>,
     Json(input): Json<NewStore>,
-) -> Result<(), StatusCode> {
-    if let Ok(_) = CreateStoreUseCase::new(repo).execute(input) {
-        Ok(())
+) -> Response {
+    if let Ok(_) = CreateStoreUseCase::new(repo).execute(&input) {
+        Json(input).into_response()
     } else {
-        Err(StatusCode::BAD_REQUEST)
+        StatusCode::BAD_REQUEST.into_response()
     }
 }
 
+#[axum::debug_handler]
 pub async fn get_store_by_id_handler(
     State(repo): State<Arc<DiskStoreRepo>>,
     Path(id): Path<String>,
-) -> Result<String, StatusCode> {
+) -> Response {
     if let Some(store) = GetStoreByIdUseCase::new(repo).execute(id) {
-        Ok(store.name)
+        Json(NewStore {
+            id: store.id,
+            name: store.name,
+        })
+        .into_response()
     } else {
-        Err(StatusCode::NOT_FOUND)
+        StatusCode::NOT_FOUND.into_response()
     }
 }

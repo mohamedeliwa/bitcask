@@ -14,7 +14,7 @@ impl<T: StoreRepo> CreateStoreUseCase<T> {
         }
     }
 
-    pub fn execute(&self, store: NewStore) -> Result<(), String> {
+    pub fn execute(&self, store: &NewStore) -> Result<(), String> {
         self.service.create_store(store)
     }
 }
