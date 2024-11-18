@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{fs, sync::Arc};
 
 use crate::{
     domain::{entities::store::Store, repositories::store_repo::StoreRepo},
@@ -11,11 +11,19 @@ pub struct DiskStoreRepo {
 }
 
 impl DiskStoreRepo {
-    pub fn new() -> Self {
-        // can be read from the env
-        // or passed as a param from the caller
-        let path = "".to_string();
-        DiskStoreRepo { path }
+    pub fn new(path: &str) -> Self {
+        // making sure the stores directory exists
+        fs::create_dir_all(path).expect("couldn't create Disk store repo");
+
+        DiskStoreRepo {
+            path: path.to_string(),
+        }
+    }
+}
+
+impl DiskStoreRepo {
+    pub fn get_path(&self) -> &str {
+        &self.path
     }
 }
 
@@ -23,6 +31,7 @@ impl StoreRepo for Arc<DiskStoreRepo> {
     fn create(&self, _store: &NewStore) -> Result<(), String> {
         Ok(())
     }
+
     fn get_by_id(&self, _id: String) -> Option<Store> {
         None
     }

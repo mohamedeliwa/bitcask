@@ -13,7 +13,11 @@ use crate::{
 /// builds store related routes
 /// returns store router
 pub fn routes() -> Router {
-    let repo = Arc::new(DiskStoreRepo::new());
+    // can be read from the env
+    // or passed as a param from the caller
+    let path = "./stores";
+    let repo = Arc::new(DiskStoreRepo::new(path));
+
     Router::new()
         .route("/store/:id", get(get_store_by_id_handler))
         .route("/store", post(create_store_handler))
