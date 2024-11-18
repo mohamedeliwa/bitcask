@@ -43,7 +43,7 @@ impl StoreRepo for Arc<DiskStoreRepo> {
                 name: id.into(),
                 id: id.into(),
             }),
-            Err(e) => None,
+            Err(_) => None,
         }
     }
 }

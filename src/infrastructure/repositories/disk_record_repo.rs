@@ -1,4 +1,9 @@
-use crate::domain::repositories::record_repo::RecordRepo;
+use std::sync::Arc;
+
+use crate::{
+    domain::repositories::record_repo::RecordRepo,
+    presentation::handlers::record_handler::NewRecord,
+};
 
 pub struct DiskRecordRepo {
     /// path of the directory in which stores are created
@@ -6,22 +11,19 @@ pub struct DiskRecordRepo {
 }
 
 impl DiskRecordRepo {
-    pub fn new() -> Self {
+    pub fn new(path: &str) -> Self {
         // can be read from the env
         // or passed as a param from the caller
-        let path = "".to_string();
-        DiskRecordRepo { path }
+        DiskRecordRepo { path: path.into() }
+    }
+
+    pub fn get_path(&self) -> &str {
+        &self.path
     }
 }
 
-/// we can implement it for Arc<> in case we want it to be shared
-/// impl StoreRepo for Arc<DiskStoreRepo>
-impl RecordRepo for DiskRecordRepo {
-    fn set(
-        &self,
-        _record: &crate::domain::entities::record::Record,
-        _store: &str,
-    ) -> Result<(), String> {
+impl RecordRepo for Arc<DiskRecordRepo> {
+    fn set(&self, _record: &NewRecord, _store: &str) -> Result<(), String> {
         Ok(())
     }
     fn get(&self, _key: &str, _store: &str) -> Option<crate::domain::entities::record::Record> {

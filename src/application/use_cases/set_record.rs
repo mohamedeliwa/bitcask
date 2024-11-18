@@ -1,6 +1,6 @@
-use crate::domain::{
-    entities::record::Record, repositories::record_repo::RecordRepo,
-    services::record_service::RecordService,
+use crate::{
+    domain::{repositories::record_repo::RecordRepo, services::record_service::RecordService},
+    presentation::handlers::record_handler::NewRecord,
 };
 
 pub struct SetRecordUseCase<T: RecordRepo> {
@@ -14,7 +14,7 @@ impl<T: RecordRepo> SetRecordUseCase<T> {
         }
     }
 
-    pub fn execute(&self, record: &Record, store: &str) -> Result<(), String> {
+    pub fn execute(&self, record: &NewRecord, store: &str) -> Result<(), String> {
         self.service.set(record, store)
     }
 }
