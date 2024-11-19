@@ -14,7 +14,7 @@ impl<T: RecordRepo> GetRecordUseCase<T> {
         }
     }
 
-    pub fn execute(&self, record: &str, store: &str) -> Option<Record> {
+    pub fn execute(&self, record: &str, store: &str) -> Result<Option<Record>, String> {
         self.service.get(record, store)
     }
 }

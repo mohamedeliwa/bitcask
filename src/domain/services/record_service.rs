@@ -16,7 +16,7 @@ impl<T: RecordRepo> RecordService<T> {
         self.repo.set(record, store)
     }
 
-    pub fn get(&self, key: &str, store: &str) -> Option<Record> {
+    pub fn get(&self, key: &str, store: &str) -> Result<Option<Record>, String> {
         self.repo.get(key, store)
     }
 }

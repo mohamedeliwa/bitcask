@@ -36,13 +36,13 @@ pub async fn get_record_handler(
     State(repo): State<Arc<DiskRecordRepo>>,
     Path((store, key)): Path<(String, String)>,
 ) -> Response {
-    if let Some(record) = GetRecordUseCase::new(repo).execute(&key, &store) {
-        Json(NewRecord {
+    match GetRecordUseCase::new(repo).execute(&key, &store) {
+        Ok(Some(record)) => Json(NewRecord {
             key: record.key,
             value: record.value,
         })
-        .into_response()
-    } else {
-        StatusCode::NOT_FOUND.into_response()
+        .into_response(),
+        Ok(None) => (StatusCode::NOT_FOUND, "record not found!").into_response(),
+        Err(e) => (StatusCode::BAD_REQUEST, e).into_response(),
     }
 }
