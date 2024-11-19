@@ -56,22 +56,23 @@ impl RecordRepo for Arc<DiskRecordRepo> {
         };
 
         let lines = BufReader::new(store_file).lines();
+        let mut record: Option<Record> = None;
         for line in lines {
             if line.is_err() {
                 return Err("failed to read record".into());
             }
             if let Some((key, value)) = line.unwrap().split_once(',') {
                 if key == search_key {
-                    return Ok(Some(Record {
+                    record = Some(Record {
                         key: key.into(),
                         value: value.into(),
-                    }));
+                    });
                 }
             } else {
                 return Err("failed to read record".into());
             };
         }
 
-        Ok(None)
+        Ok(record)
     }
 }
