@@ -1,10 +1,10 @@
 use axum::Router;
 
-use crate::presentation::routes::{record_routes, store_routes::routes};
+use crate::presentation::routes::{record_routes, store_routes};
 
 /// initializes the http web server
 pub async fn run() -> Result<(), String> {
-    let store_routes = routes();
+    let store_routes = store_routes::routes();
     let record_routes = record_routes::routes();
 
     println!("Starting web server...!");
