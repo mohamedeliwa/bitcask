@@ -1,4 +1,7 @@
-use std::{collections::HashMap, sync::Mutex};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 use crate::domain::{
     entities::hash_index::{HashIndex, Offset},
@@ -15,7 +18,7 @@ impl MemHashIndexRepo {
     }
 }
 
-impl HashIndexRepo for MemHashIndexRepo {
+impl HashIndexRepo for Arc<MemHashIndexRepo> {
     fn get(&self, key: &str) -> Option<Offset> {
         self.0.lock().unwrap().index.get(key).copied()
     }

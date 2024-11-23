@@ -5,18 +5,25 @@ use std::{
 };
 
 use crate::{
-    domain::{entities::record::Record, repositories::record_repo::RecordRepo},
+    domain::{
+        entities::record::Record,
+        repositories::{hash_index_repo::HashIndexRepo, record_repo::RecordRepo},
+    },
     presentation::handlers::record_handler::NewRecord,
 };
 
-pub struct DiskRecordRepo {
+pub struct DiskRecordRepo<T: HashIndexRepo> {
     /// path of the directory in which stores are created
     path: String,
+    index: T,
 }
 
-impl DiskRecordRepo {
-    pub fn new(path: &str) -> Self {
-        DiskRecordRepo { path: path.into() }
+impl<T: HashIndexRepo> DiskRecordRepo<T> {
+    pub fn new(path: &str, index: T) -> Self {
+        DiskRecordRepo {
+            path: path.into(),
+            index,
+        }
     }
 
     pub fn get_path(&self) -> &str {
@@ -29,7 +36,7 @@ impl DiskRecordRepo {
     }
 }
 
-impl RecordRepo for Arc<DiskRecordRepo> {
+impl<T: HashIndexRepo> RecordRepo for Arc<DiskRecordRepo<T>> {
     fn set(&self, record: &NewRecord, store: &str) -> Result<(), String> {
         let path = self.get_store_path(store);
         // check if the file exist in the path
