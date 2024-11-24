@@ -11,5 +11,5 @@ pub struct HashIndex {
     pub index: HashMap<String, Offset>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Offset(pub u64);

@@ -1,5 +1,6 @@
 use crate::domain::{
-    entities::hash_index::Offset, repositories::hash_index_repo::HashIndexRepo, services::hash_index_service::HashIndexService
+    entities::hash_index::Offset, repositories::hash_index_repo::HashIndexRepo,
+    services::hash_index_service::HashIndexService,
 };
 
 pub struct SetHasIndexKey<T: HashIndexRepo> {
@@ -7,8 +8,10 @@ pub struct SetHasIndexKey<T: HashIndexRepo> {
 }
 
 impl<T: HashIndexRepo> SetHasIndexKey<T> {
-    pub fn new(service: HashIndexService<T>) -> Self {
-        SetHasIndexKey { service }
+    pub fn new(repo: T) -> Self {
+        SetHasIndexKey {
+            service: HashIndexService::new(repo),
+        }
     }
 
     pub fn execute(&self, key: &str, offset: Offset) -> Result<(), String> {

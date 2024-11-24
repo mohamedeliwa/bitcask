@@ -8,8 +8,10 @@ pub struct GetHasIndexKey<T: HashIndexRepo> {
 }
 
 impl<T: HashIndexRepo> GetHasIndexKey<T> {
-    pub fn new(service: HashIndexService<T>) -> Self {
-        GetHasIndexKey { service }
+    pub fn new(repo: T) -> Self {
+        GetHasIndexKey {
+            service: HashIndexService::new(repo),
+        }
     }
 
     pub fn execute(&self, key: &str) -> Option<Offset> {
