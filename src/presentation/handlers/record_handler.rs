@@ -11,10 +11,7 @@ use crate::{
         get_hash_index_key::GetHasIndexKey, get_record::GetRecordUseCase,
         set_hash_index_key::SetHasIndexKey, set_record::SetRecordUseCase,
     },
-    domain::{
-        entities::hash_index::Offset,
-        repositories::{hash_index_repo::HashIndexRepo, record_repo::RecordRepo},
-    },
+    domain::repositories::{hash_index_repo::HashIndexRepo, record_repo::RecordRepo},
     infrastructure::web::WebAppState,
 };
 
@@ -35,9 +32,9 @@ where
     U: RecordRepo,
 {
     match SetRecordUseCase::new(state.record_repo).execute(&new_record, &store) {
-        Ok(_) => {
+        Ok(offset) => {
             SetHasIndexKey::new(state.hash_index)
-                .execute(&new_record.key, Offset(23))
+                .execute(&new_record.key, offset)
                 .expect("failed to set hash index key");
             Json(new_record).into_response()
         }
@@ -54,17 +51,25 @@ where
     T: HashIndexRepo,
     U: RecordRepo,
 {
-    match GetRecordUseCase::new(state.record_repo).execute(&key, &store) {
-        Ok(Some(record)) => {
-            let x = GetHasIndexKey::new(state.hash_index).execute(&key);
-            println!("offset is: {:?}", x);
-
-            Json(NewRecord {
-                key: record.key,
-                value: record.value,
-            })
-            .into_response()
+    // getting the record offset from the hashindex
+    let offset = match GetHasIndexKey::new(state.hash_index).execute(&key) {
+        None => {
+            return (
+                StatusCode::NOT_FOUND,
+                "failed to find the record in the hash index!",
+            )
+                .into_response()
         }
+        Some(offset) => offset,
+    };
+
+    // reading the record from the store file using the offset
+    match GetRecordUseCase::new(state.record_repo).execute(offset, &store) {
+        Ok(Some(record)) => Json(NewRecord {
+            key: record.key,
+            value: record.value,
+        })
+        .into_response(),
         Ok(None) => (StatusCode::NOT_FOUND, "record not found!").into_response(),
         Err(e) => (StatusCode::BAD_REQUEST, e).into_response(),
     }

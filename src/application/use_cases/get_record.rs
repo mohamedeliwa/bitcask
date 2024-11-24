@@ -1,5 +1,6 @@
 use crate::domain::{
-    entities::record::Record, repositories::record_repo::RecordRepo,
+    entities::{hash_index::Offset, record::Record},
+    repositories::record_repo::RecordRepo,
     services::record_service::RecordService,
 };
 
@@ -14,7 +15,7 @@ impl<T: RecordRepo> GetRecordUseCase<T> {
         }
     }
 
-    pub fn execute(&self, record: &str, store: &str) -> Result<Option<Record>, String> {
-        self.service.get(record, store)
+    pub fn execute(&self, offset: Offset, store: &str) -> Result<Option<Record>, String> {
+        self.service.get(offset, store)
     }
 }
