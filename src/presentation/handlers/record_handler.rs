@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -10,9 +8,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     application::use_cases::{get_record::GetRecordUseCase, set_record::SetRecordUseCase},
-    infrastructure::repositories::{
-        disk_record_repo::DiskRecordRepo, mem_hash_index_repo::MemHashIndexRepo,
-    },
+    domain::repositories::record_repo::RecordRepo,
+    infrastructure::web::WebAppState,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -21,24 +18,30 @@ pub struct NewRecord {
     pub value: String,
 }
 
-#[axum::debug_handler]
-pub async fn set_record_handler(
-    State(repo): State<Arc<DiskRecordRepo<Arc<MemHashIndexRepo>>>>,
+// #[axum::debug_handler]
+pub async fn set_record_handler<T, U, V>(
+    State(state): State<WebAppState<T, U, V>>,
     Path(store): Path<String>,
     Json(input): Json<NewRecord>,
-) -> Response {
-    match SetRecordUseCase::new(repo).execute(&input, &store) {
+) -> Response
+where
+    U: RecordRepo,
+{
+    match SetRecordUseCase::new(state.record_repo).execute(&input, &store) {
         Ok(_) => Json(input).into_response(),
         Err(e) => (StatusCode::BAD_REQUEST, e).into_response(),
     }
 }
 
-#[axum::debug_handler]
-pub async fn get_record_handler(
-    State(repo): State<Arc<DiskRecordRepo<Arc<MemHashIndexRepo>>>>,
+// #[axum::debug_handler]
+pub async fn get_record_handler<T, U, V>(
+    State(state): State<WebAppState<T, U, V>>,
     Path((store, key)): Path<(String, String)>,
-) -> Response {
-    match GetRecordUseCase::new(repo).execute(&key, &store) {
+) -> Response
+where
+    U: RecordRepo,
+{
+    match GetRecordUseCase::new(state.record_repo).execute(&key, &store) {
         Ok(Some(record)) => Json(NewRecord {
             key: record.key,
             value: record.value,
