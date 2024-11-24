@@ -30,11 +30,17 @@ impl DiskRecordRepo {
         let path = format!("{}/{}", self.path, store);
         path
     }
+
+    pub fn get_log_file_path(&self, store: &str) -> String {
+        let path = self.get_store_path(store);
+        let path = format!("{}/log", path);
+        path
+    }
 }
 
 impl RecordRepo for Arc<DiskRecordRepo> {
     fn set(&self, record: &NewRecord, store: &str) -> Result<Offset, String> {
-        let path = self.get_store_path(store);
+        let path = self.get_log_file_path(store);
         // check if the file exist in the path
         let mut store_file = match OpenOptions::new().append(true).open(&path) {
             Ok(f) => f,
@@ -52,7 +58,7 @@ impl RecordRepo for Arc<DiskRecordRepo> {
     }
 
     fn get(&self, offset: Offset, store: &str) -> Result<Option<Record>, String> {
-        let path = self.get_store_path(store);
+        let path = self.get_log_file_path(store);
 
         // check if the file exist in the path
         let mut store_file = match OpenOptions::new().read(true).open(&path) {
