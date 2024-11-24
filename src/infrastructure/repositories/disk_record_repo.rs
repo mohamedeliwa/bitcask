@@ -1,11 +1,14 @@
 use std::{
     fs::OpenOptions,
-    io::{BufRead, BufReader, Write},
+    io::{BufRead, BufReader, Seek, SeekFrom, Write},
     sync::Arc,
 };
 
 use crate::{
-    domain::{entities::record::Record, repositories::record_repo::RecordRepo},
+    domain::{
+        entities::{hash_index::Offset, record::Record},
+        repositories::record_repo::RecordRepo,
+    },
     presentation::handlers::record_handler::NewRecord,
 };
 
@@ -30,21 +33,22 @@ impl DiskRecordRepo {
 }
 
 impl RecordRepo for Arc<DiskRecordRepo> {
-    fn set(&self, record: &NewRecord, store: &str) -> Result<(), String> {
+    fn set(&self, record: &NewRecord, store: &str) -> Result<Offset, String> {
         let path = self.get_store_path(store);
         // check if the file exist in the path
         let mut store_file = match OpenOptions::new().append(true).open(&path) {
             Ok(f) => f,
             Err(e) => return Err(e.to_string()),
         };
+        let offset = store_file
+            .seek(SeekFrom::Current(0))
+            .map_err(|e| e.to_string())?;
         // if yes, append the record to the file
-        write!(store_file, "{}", record.key).map_err(|e| e.to_string())?;
         // the key and value of the same record are separated by a comma
-        write!(store_file, ",").map_err(|e| e.to_string())?;
-        write!(store_file, "{}", record.value).map_err(|e| e.to_string())?;
         // records are separated by a new line
-        write!(store_file, "\n").map_err(|e| e.to_string())?;
-        Ok(())
+        write!(store_file, "{},{}\n", record.key, record.value).map_err(|e| e.to_string())?;
+
+        Ok(Offset(offset))
     }
     fn get(&self, search_key: &str, store: &str) -> Result<Option<Record>, String> {
         let path = self.get_store_path(store);

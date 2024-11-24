@@ -1,5 +1,5 @@
 use crate::{
-    domain::{entities::record::Record, repositories::record_repo::RecordRepo},
+    domain::{entities::{hash_index::Offset, record::Record}, repositories::record_repo::RecordRepo},
     presentation::handlers::record_handler::NewRecord,
 };
 
@@ -12,7 +12,7 @@ impl<T: RecordRepo> RecordService<T> {
         RecordService { repo }
     }
 
-    pub fn set(&self, record: &NewRecord, store: &str) -> Result<(), String> {
+    pub fn set(&self, record: &NewRecord, store: &str) -> Result<Offset, String> {
         self.repo.set(record, store)
     }
 

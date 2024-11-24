@@ -1,5 +1,5 @@
 use crate::{
-    domain::{repositories::record_repo::RecordRepo, services::record_service::RecordService},
+    domain::{entities::hash_index::Offset, repositories::record_repo::RecordRepo, services::record_service::RecordService},
     presentation::handlers::record_handler::NewRecord,
 };
 
@@ -14,7 +14,7 @@ impl<T: RecordRepo> SetRecordUseCase<T> {
         }
     }
 
-    pub fn execute(&self, record: &NewRecord, store: &str) -> Result<(), String> {
+    pub fn execute(&self, record: &NewRecord, store: &str) -> Result<Offset, String> {
         self.service.set(record, store)
     }
 }
