@@ -12,4 +12,5 @@ pub struct HashIndex {
 }
 
 #[derive(Debug, Clone, Copy)]
+/// bytes offset in a file
 pub struct Offset(pub u64);

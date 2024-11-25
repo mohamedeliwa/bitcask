@@ -1,4 +1,9 @@
-use std::{fs, path::PathBuf, sync::Arc};
+use std::{
+    fs::{self, rename, OpenOptions},
+    io::Write,
+    path::PathBuf,
+    sync::Arc,
+};
 
 use crate::{
     domain::{entities::store::Store, repositories::store_repo::StoreRepo},
@@ -10,6 +15,7 @@ pub struct DiskStoreRepo {
     path: String,
     log_file_name: String,
     index_file_name: String,
+    meta_file_name: String,
 }
 
 impl DiskStoreRepo {
@@ -20,14 +26,15 @@ impl DiskStoreRepo {
         DiskStoreRepo {
             path: path.to_string(),
             log_file_name: "log".into(),
-            index_file_name: "index.json".into(),
+            index_file_name: "index".into(),
+            meta_file_name: "meta".into(),
         }
     }
 }
 
 impl DiskStoreRepo {
-    pub fn get_path(&self) -> &str {
-        &self.path
+    pub fn get_path(&self) -> PathBuf {
+        PathBuf::from(&self.path)
     }
 }
 
@@ -44,13 +51,18 @@ impl StoreRepo for Arc<DiskStoreRepo> {
         fs::create_dir_all(&path).expect("couldn't create store directory");
 
         let log_file = path.join(&self.log_file_name);
-        let index_file = path.join(&self.index_file_name);
+        let meta_file = path.join(&self.meta_file_name);
+        // let index_file = path.join(&self.index_file_name);
 
         match fs::File::create_new(&log_file) {
             Err(e) => return Err(e.to_string()),
             _ => {}
-        };
-        match fs::File::create_new(&index_file) {
+        }
+        // match fs::File::create_new(&index_file) {
+        //     Ok(_) => Ok(()),
+        //     Err(e) => Err(e.to_string()),
+        // }
+        match fs::File::create_new(&meta_file) {
             Ok(_) => Ok(()),
             Err(e) => Err(e.to_string()),
         }
@@ -65,5 +77,32 @@ impl StoreRepo for Arc<DiskStoreRepo> {
             }),
             Err(_) => None,
         }
+    }
+
+    /// closes the current log segment
+    /// opens a new segment
+    /// returns the new name of the old segment
+    fn close_log(&self, id: &str) -> Result<String, String> {
+        let store_path = self.get_path().join(id);
+        let log_path = store_path.join(&self.log_file_name);
+        let new_log_file_name = "".to_string();
+        let new_log_path = store_path.join(&new_log_file_name);
+        let meta_path = store_path.join(&self.meta_file_name);
+        // rename the old log
+        rename(&log_path, &new_log_path).map_err(|e| e.to_string())?;
+        // append the name of the old log to the meta file
+        let mut meta_file = OpenOptions::new()
+            .append(true)
+            .open(meta_path)
+            .map_err(|e| e.to_string())?;
+        meta_file
+            .write_all(new_log_file_name.as_bytes())
+            .map_err(|e| e.to_string())?;
+        // create a new log file
+        match fs::File::create_new(&log_path) {
+            Err(e) => return Err(e.to_string()),
+            _ => {}
+        }
+        Ok(new_log_file_name)
     }
 }
