@@ -81,9 +81,17 @@ impl StoreRepo for Arc<DiskStoreRepo> {
         }
     }
 
-    /// closes the current log segment
-    /// opens a new log segment
-    /// returns the timestamp string after which the old log segment is named
+    /// Closes the current log segment <br>
+    /// Opens a new log segment <br>
+    /// 
+    /// # Arguments
+    /// * `id`: id of the store
+    ///
+    /// # Returns
+    /// The name of the splitted segment.
+    /// 
+    /// It's basically the timestamp string at which the segment is created.
+    ///
     fn split_log(&self, id: &str) -> Result<String, String> {
         let store_path = self.get_path().join(id);
         let log_path = store_path.join(&self.log_file_name);
@@ -95,7 +103,9 @@ impl StoreRepo for Arc<DiskStoreRepo> {
             .to_string();
 
         let new_log_file_name = format!("{timestamp}.log");
+        let index_file_name = format!("{timestamp}.index");
         let new_log_path = store_path.join(&new_log_file_name);
+        let index_path = store_path.join(&index_file_name);
         let meta_path = store_path.join(&self.meta_file_name);
 
         // rename the old log after the timestamp
@@ -110,6 +120,11 @@ impl StoreRepo for Arc<DiskStoreRepo> {
             .map_err(|e| e.to_string())?;
         // create a new log file
         match fs::File::create_new(&log_path) {
+            Err(e) => return Err(e.to_string()),
+            _ => {}
+        }
+        // create an index file to flush inmemory cache into it
+        match fs::File::create_new(&index_path) {
             Err(e) => return Err(e.to_string()),
             _ => {}
         }
