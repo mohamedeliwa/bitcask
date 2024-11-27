@@ -25,7 +25,7 @@ pub async fn run() -> Result<(), String> {
     // can be read from the env
     // or passed as a param from the caller
     let path = "./stores";
-    let hash_index = Arc::new(MemHashIndexRepo::new());
+    let hash_index = Arc::new(MemHashIndexRepo::new(path));
     let record_repo = Arc::new(DiskRecordRepo::new(path));
     let store_repo = Arc::new(DiskStoreRepo::new(path));
 

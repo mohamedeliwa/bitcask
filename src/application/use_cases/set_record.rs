@@ -1,5 +1,8 @@
 use crate::{
-    domain::{entities::hash_index::Offset, repositories::record_repo::RecordRepo, services::record_service::RecordService},
+    domain::{
+        entities::hash_index::Offset, repositories::record_repo::RecordRepo,
+        services::record_service::RecordService,
+    },
     presentation::handlers::record_handler::NewRecord,
 };
 
