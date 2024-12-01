@@ -53,7 +53,6 @@ impl RecordRepo for Arc<DiskRecordRepo> {
         // the key and value of the same record are separated by a comma
         // records are separated by a new line
         write!(store_file, "{},{}\n", record.key, record.value).map_err(|e| e.to_string())?;
-        println!("{:?}", offset);
         Ok(Offset(offset))
     }
 

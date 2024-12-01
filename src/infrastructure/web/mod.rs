@@ -11,10 +11,10 @@ use crate::{
 };
 
 #[derive(Clone)]
-pub struct WebAppState<T, U, V> {
-    pub hash_index: T,
-    pub record_repo: U,
-    pub store_repo: V,
+pub struct WebAppState<H, R, S> {
+    pub hash_index_repo: H,
+    pub record_repo: R,
+    pub store_repo: S,
 }
 
 pub type WebAppStateType =
@@ -25,12 +25,12 @@ pub async fn run() -> Result<(), String> {
     // can be read from the env
     // or passed as a param from the caller
     let path = "./stores";
-    let hash_index = Arc::new(MemHashIndexRepo::new(path));
+    let hash_index_repo = Arc::new(MemHashIndexRepo::new(path));
     let record_repo = Arc::new(DiskRecordRepo::new(path));
     let store_repo = Arc::new(DiskStoreRepo::new(path));
 
     let state = WebAppState {
-        hash_index,
+        hash_index_repo,
         record_repo,
         store_repo,
     };

@@ -14,7 +14,7 @@ use crate::{
     infrastructure::web::WebAppState,
 };
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct NewStore {
     pub id: String,
     pub name: String,

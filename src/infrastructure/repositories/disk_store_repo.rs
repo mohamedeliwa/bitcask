@@ -32,9 +32,7 @@ impl DiskStoreRepo {
             meta_file_name: "meta".into(),
         }
     }
-}
 
-impl DiskStoreRepo {
     pub fn get_path(&self) -> PathBuf {
         PathBuf::from(&self.path)
     }
@@ -83,13 +81,13 @@ impl StoreRepo for Arc<DiskStoreRepo> {
 
     /// Closes the current log segment <br>
     /// Opens a new log segment <br>
-    /// 
+    ///
     /// # Arguments
     /// * `id`: id of the store
     ///
     /// # Returns
     /// The name of the splitted segment.
-    /// 
+    ///
     /// It's basically the timestamp string at which the segment is created.
     ///
     fn split_log(&self, id: &str) -> Result<String, String> {
@@ -116,7 +114,7 @@ impl StoreRepo for Arc<DiskStoreRepo> {
             .open(meta_path)
             .map_err(|e| e.to_string())?;
         meta_file
-            .write_all(timestamp.as_bytes())
+            .write_all(format!("{timestamp}\n").as_bytes())
             .map_err(|e| e.to_string())?;
         // create a new log file
         match fs::File::create_new(&log_path) {

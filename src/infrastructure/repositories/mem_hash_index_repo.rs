@@ -50,16 +50,19 @@ impl HashIndexRepo for Arc<MemHashIndexRepo> {
             .append(true)
             .open(index_path)
             .map_err(|e| e.to_string())?;
-        // empty the cache
-        let in_mem_index: Vec<(String, Offset)> = self.index.lock().unwrap().index.drain().collect();
 
-        // write the cached value to it
-        for (key, value) in in_mem_index {
+        // get the lock on cache
+        let mut hash_index = self.index.lock().unwrap();
+
+        //  perisit the (key, value) pairs on the index file while emptying the cache
+        hash_index.index.drain().try_for_each(|(key, value)| {
             let record = format!("{key},{}\n", value.0);
+
             index_file
                 .write_all(record.as_bytes())
-                .map_err(|e| e.to_string())?;
-        }
+                .map_err(|e| e.to_string())
+        })?;
+
         Ok(())
     }
 }
